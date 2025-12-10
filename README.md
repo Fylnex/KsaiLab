@@ -1,1 +1,1 @@
-# KLAP (Kubernetes Laboratory Automation Platform) — платформа автоматизации лабораторий на K8s
+# KLAP (KSAI Laboratory Automation Platform) — платформа автоматизации лабораторий кафедры судовой автоматики и измерений
