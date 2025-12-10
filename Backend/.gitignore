@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.env.prod
+
+# Database
+database.sqlite
+backups/
+
+# Logs
+logs/
+
+# Poetry
+poetry.lock
+dist/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.DS_Store
+*.log
