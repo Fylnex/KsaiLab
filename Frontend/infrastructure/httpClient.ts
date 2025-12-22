@@ -6,6 +6,7 @@
 
 interface HttpClientOptions {
   headers?: Record<string, string>
+  timeout?: number
   [key: string]: unknown
 }
 
@@ -68,40 +69,73 @@ export function getHttpClient(): HttpClient {
     return headers
   }
 
+  const defaultTimeout = 60000 // 60 секунд по умолчанию
+
+  const fetchWithTimeout = async <T>(
+    url: string,
+    options: {
+      method: string
+      headers: Record<string, string>
+      body?: unknown
+      timeout?: number
+      [key: string]: unknown
+    }
+  ): Promise<T> => {
+    const timeout = options.timeout || defaultTimeout
+
+    try {
+      const response = await $fetch<T>(url, {
+        ...options,
+        timeout,
+      })
+      return response
+    } catch (error: any) {
+      // Обработка ошибок таймаута
+      if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+        throw new Error(`Request timeout after ${timeout}ms: ${url}`)
+      }
+      throw error
+    }
+  }
+
   return {
     async get<T>(url: string, options?: HttpClientOptions): Promise<HttpClientResponse<T>> {
-      const response = await $fetch<T>(`${baseUrl}${url}`, {
+      const response = await fetchWithTimeout<T>(`${baseUrl}${url}`, {
         method: 'GET',
         headers: createHeaders(options?.headers),
+        timeout: options?.timeout,
         ...options,
       })
       return { data: response }
     },
 
     async post<T>(url: string, body?: unknown, options?: HttpClientOptions): Promise<HttpClientResponse<T>> {
-      const response = await $fetch<T>(`${baseUrl}${url}`, {
+      const response = await fetchWithTimeout<T>(`${baseUrl}${url}`, {
         method: 'POST',
         headers: createHeaders(options?.headers),
         body,
+        timeout: options?.timeout,
         ...options,
       })
       return { data: response }
     },
 
     async put<T>(url: string, body?: unknown, options?: HttpClientOptions): Promise<HttpClientResponse<T>> {
-      const response = await $fetch<T>(`${baseUrl}${url}`, {
+      const response = await fetchWithTimeout<T>(`${baseUrl}${url}`, {
         method: 'PUT',
         headers: createHeaders(options?.headers),
         body,
+        timeout: options?.timeout,
         ...options,
       })
       return { data: response }
     },
 
     async delete<T>(url: string, options?: HttpClientOptions): Promise<HttpClientResponse<T>> {
-      const response = await $fetch<T>(`${baseUrl}${url}`, {
+      const response = await fetchWithTimeout<T>(`${baseUrl}${url}`, {
         method: 'DELETE',
         headers: createHeaders(options?.headers),
+        timeout: options?.timeout,
         ...options,
       })
       return { data: response }
